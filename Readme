@@ -1,0 +1,199 @@
+Asana RL Seed Data Simulation
+Overview
+
+This repository generates a high-fidelity, realistic seed dataset simulating an enterprise Asana workspace.
+The dataset is designed for reinforcement learning (RL) environments evaluating computer-use AI agents performing project management workflows such as task navigation, assignment, completion, and filtering.
+
+The simulation represents a B2B SaaS company with ~7,500 employees using Asana for Engineering, Product, Marketing, Sales, and Operations workflows over a 6-month historical window.
+
+The primary goal is data realism, not synthetic randomness, ensuring that RL agents trained on this environment do not exploit unrealistic shortcuts.
+
+Key Features
+
+Realistic organizational hierarchy (organization → teams → projects)
+
+Task, subtask, comment, and tag structures aligned with real Asana usage
+
+Empirically grounded distributions for:
+
+Task completion rates
+
+Due dates and overdue tasks
+
+Assignment patterns
+
+Temporal and relational consistency enforced across all entities
+
+Modular, extensible data generation pipeline
+
+SQLite output compatible with downstream RL environments
+
+Repository Structure
+asana-rl-seed-data-simulation/
+├── README.md
+├── requirements.txt
+├── schema.sql
+├── .env.example
+├── src/
+│   ├── main.py
+│   ├── scrapers/
+│   ├── generators/
+│   ├── models/
+│   └── utils/
+├── prompts/
+└── output/
+    └── asana_simulation.sqlite
+
+Directory Overview
+
+schema.sql
+Defines the complete relational schema for the Asana simulation.
+
+src/main.py
+Entry point that orchestrates data generation in the correct dependency order.
+
+src/generators/
+Entity-specific generators (users, teams, projects, tasks, comments, etc.).
+
+src/utils/
+Shared utilities for:
+
+Date and time logic
+
+Probability distributions
+
+UUID generation
+
+LLM interaction (if enabled)
+
+prompts/
+Prompt templates used for LLM-based text generation (task names, descriptions).
+
+output/
+Contains the final generated SQLite database.
+
+Setup Instructions
+1. Clone the Repository
+git clone <your-repo-url>
+cd asana-rl-seed-data-simulation
+
+2. Install Dependencies
+pip install -r requirements.txt
+
+3. Configure Environment Variables
+
+Copy the example configuration:
+
+cp .env.example .env
+
+
+Edit .env as needed:
+
+OPENAI_API_KEY=your_api_key_here
+DATABASE_PATH=output/asana_simulation.sqlite
+START_DATE=2025-07-01
+END_DATE=2025-12-31
+NUM_USERS=7500
+
+
+Note:
+If LLM generation is disabled, the OpenAI key is not required.
+
+4. Generate the Dataset
+python src/main.py
+
+
+This command:
+
+Initializes the SQLite database
+
+Creates all tables defined in schema.sql
+
+Populates all entities with realistic data
+
+Outputs the final database to output/asana_simulation.sqlite
+
+Data Generation Flow (Important)
+
+To preserve relational and temporal consistency, data is generated in the following order:
+
+Organization
+
+Users
+
+Teams
+
+Team Memberships
+
+Projects
+
+Sections
+
+Custom Field Definitions
+
+Tasks and Subtasks
+
+Tags and Task-Tag Associations
+
+Comments
+
+This order mirrors real Asana dependency constraints and prevents invalid references.
+
+Realism & Methodology Highlights
+
+Task Completion Rates
+Vary by project type (e.g., sprint vs. operational work)
+
+Due Dates
+Follow planning horizon distributions and avoid weekends in most cases
+
+Assignments
+Weighted by team membership; ~15% of tasks intentionally left unassigned
+
+Edge Cases Included
+
+Overdue tasks
+
+Empty sections
+
+Tasks without descriptions
+
+Completed projects
+
+These characteristics are essential to prevent shortcut learning in RL agents.
+
+Output
+
+The final SQLite database contains:
+
+Thousands of users
+
+Thousands of projects
+
+Tens of thousands of tasks and subtasks
+
+Hundreds of thousands of comments and activity records
+
+The database is fully relational, queryable, and suitable for:
+
+RL environment simulation
+
+Model evaluation
+
+Offline policy training
+
+Reproducibility & Configuration
+
+All key parameters (organization size, date range, volume) are configurable via environment variables or centralized configuration files, enabling reproducible experiments at different scales.
+
+Notes
+
+The repository prioritizes clarity, correctness, and realism over raw volume.
+
+All generation logic aligns with the methodology documented in the accompanying Google Doc.
+
+The schema and data model are intentionally designed to resemble real Asana behavior, not a simplified abstraction.
+
+License
+
+This project is provided for evaluation and research purposes only.
